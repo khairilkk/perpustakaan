@@ -2,175 +2,220 @@
 
 @section('content')
 
-<div class="p-8 bg-gray-100 min-h-screen">
+<div class="p-8 bg-slate-100 min-h-screen">
 
+    <!-- Header -->
     <div class="mb-8">
-
-        <h1 class="text-5xl font-bold">
+        <h1 class="text-4xl font-bold text-slate-800">
             Data Pengembalian
         </h1>
 
-        <p class="text-gray-500 mt-2">
-            Kelola transaksi pengembalian buku
+        <p class="text-slate-500 mt-2">
+            Kelola transaksi pengembalian buku perpustakaan
         </p>
-
     </div>
 
+    <!-- Alert -->
     @if(session('success'))
-
-        <div class="bg-green-100 text-green-700 p-4 rounded-xl mb-6">
-
+        <div class="mb-6 bg-green-100 border border-green-300 text-green-700 px-5 py-4 rounded-2xl">
             {{ session('success') }}
-
         </div>
-
     @endif
 
-    <div class="bg-white rounded-3xl shadow p-8">
+    <!-- Tabel -->
+    <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
 
-        <table class="w-full">
+        <div class="overflow-x-auto">
 
-            <thead>
+            <table class="w-full">
 
-                <tr class="border-b">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-600">
 
-                    <th class="py-4">Nama</th>
+                        <th class="p-5 text-left">
+                            No
+                        </th>
 
-                    <th>Buku</th>
+                        <th class="p-5 text-left">
+                            Anggota
+                        </th>
 
-                    <th>Tanggal Pinjam</th>
+                        <th class="p-5 text-left">
+                            Buku
+                        </th>
 
-                    <th>Jatuh Tempo</th>
+                        <th class="p-5 text-center">
+                            Tanggal Pinjam
+                        </th>
 
-                    <th>Status</th>
+                        <th class="p-5 text-center">
+                            Jatuh Tempo
+                        </th>
 
-                    <th class="text-center">Aksi</th>
+                        <th class="p-5 text-center">
+                            Status
+                        </th>
 
-                </tr>
+                        <th class="p-5 text-center">
+                            Denda
+                        </th>
 
-            </thead>
+                        <th class="p-5 text-center">
+                            Aksi
+                        </th>
 
-            <tbody>
+                    </tr>
+                </thead>
 
-            @forelse($pinjams as $item)
+                <tbody>
 
-                @php
+                @forelse($pinjams as $item)
 
-                    $telat = now()->gt($item->jatuh_tempo);
+                    @php
 
-                @endphp
+                        $jatuhTempo = \Carbon\Carbon::parse(
+                            $item->jatuh_tempo
+                        );
 
-                <tr class="border-b">
+                        $telat = now()->gt(
+                            $jatuhTempo
+                        );
 
-                    <td class="py-5">
+                        $hariTerlambat =
+                    $telat
+                        ? (int) $jatuhTempo->startOfDay()->diffInDays(
+                            now()->startOfDay()
+                        )
+                        : 0;
 
-                        {{ $item->anggota->nama }}
+                        $setting =
+                        \App\Models\Pengaturan::first();
 
-                    </td>
+                        $dendaPerHari =
+                        $setting
+                            ? (int) $setting->denda_per_hari
+                            : 2000;
 
-                    <td>
+                        $totalDenda =
+                        $hariTerlambat * $dendaPerHari;
 
-                        {{ $item->buku->judul }}
+                    @endphp
 
-                    </td>
+                    <tr class="border-t hover:bg-slate-50">
 
-                    <td>
+                        <td class="p-5">
+                            {{ $loop->iteration }}
+                        </td>
 
-                        {{ $item->tanggal_pinjam }}
+                        <td class="p-5">
+                            {{ optional($item->anggota)->nama ?? 'Anggota Dihapus' }}
+                        </td>
 
-                    </td>
+                        <td class="p-5">
+                            {{ optional($item->buku)->judul ?? 'Buku Dihapus' }}
+                        </td>
 
-                    <td>
+                        <td class="p-5 text-center">
+                            {{ $item->tanggal_pinjam }}
+                        </td>
 
-                        {{ $item->jatuh_tempo }}
+                        <td class="p-5 text-center">
+                            {{ $item->jatuh_tempo }}
+                        </td>
 
-                    </td>
+                        <td class="p-5 text-center">
 
-                    <td>
+                            @if($telat)
 
-                        @if($telat)
+                                <span class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-medium">
+                                    Terlambat
+                                </span>
 
-                            <span
-                                class="
-                                bg-red-100
-                                text-red-600
-                                px-4
-                                py-2
-                                rounded-full
-                                ">
+                            @else
 
-                                Terlambat
+                                <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-medium">
+                                    Tepat Waktu
+                                </span>
 
-                            </span>
+                            @endif
 
-                        @else
+                        </td>
 
-                            <span
-                                class="
-                                bg-green-100
-                                text-green-600
-                                px-4
-                                py-2
-                                rounded-full
-                                ">
+                        <td class="p-5 text-center">
 
-                                Belum Telat
+                            @if($telat)
 
-                            </span>
+                                <div class="flex flex-col items-center gap-1">
 
-                        @endif
+                                    <span class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-semibold">
 
-                    </td>
+                                        Rp {{ number_format($totalDenda,0,',','.') }}
 
-                    <td class="text-center">
+                                    </span>
 
-                        <form
-                            action="{{ route('pengembalian.kembalikan', $item->id) }}"
-                            method="POST">
+                                    <small class="text-slate-500">
 
-                            @csrf
+                                        {{ $hariTerlambat }} hari ×
+                                        Rp {{ number_format($dendaPerHari,0,',','.') }}
 
-                            <button
-                                type="submit"
-                                onclick="return confirm('Yakin buku sudah dikembalikan?')"
-                                class="
-                                bg-blue-600
-                                hover:bg-blue-700
-                                text-white
-                                px-4
-                                py-2
-                                rounded-lg
-                                ">
+                                    </small>
 
-                                Kembalikan
+                                </div>
 
-                            </button>
+                            @else
 
-                        </form>
+                                <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full">
+                                    Tidak Ada
+                                </span>
 
-                    </td>
+                            @endif
 
-                </tr>
+                        </td>
 
-            @empty
+                        <td class="p-5 text-center">
 
-                <tr>
+                            <form
+                                action="{{ route('pengembalian.kembalikan', $item->id) }}"
+                                method="POST">
 
-                    <td
-                        colspan="6"
-                        class="text-center py-10">
+                                @csrf
 
-                        Tidak ada buku yang sedang dipinjam
+                                <button
+                                    type="submit"
+                                    onclick="return confirm('Yakin buku sudah dikembalikan?')"
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl">
 
-                    </td>
+                                    Kembalikan
 
-                </tr>
+                                </button>
 
-            @endforelse
+                            </form>
 
-            </tbody>
+                        </td>
 
-        </table>
+                    </tr>
+
+                @empty
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="text-center py-10 text-slate-400">
+
+                            Tidak ada buku yang sedang dipinjam
+
+                        </td>
+
+                    </tr>
+
+                @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 

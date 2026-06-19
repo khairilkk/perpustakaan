@@ -2,147 +2,263 @@
 
 @section('content')
 
-<div class="p-8">
+<div class="p-8 bg-slate-100 min-h-screen">
 
-    <h1 class="text-5xl font-bold">
-        Riwayat
-    </h1>
+    <!-- HEADER -->
 
-    <p class="text-gray-500">
-        Daftar transaksi peminjaman dan pengembalian
-    </p>
+    <div class="mb-8">
 
-    <!-- CARD -->
-    <div class="grid grid-cols-3 gap-6 mt-8">
+        <h1 class="text-4xl font-bold text-slate-800">
+            Riwayat Peminjaman
+        </h1>
 
-        <div class="bg-white p-6 rounded-xl shadow">
+        <p class="text-slate-500 mt-2">
+            Riwayat seluruh aktivitas peminjaman dan pengembalian buku
+        </p>
 
-            <p>Total Transaksi</p>
+    </div>
 
-            <h1 class="text-5xl mt-4">
-                {{ $total }}
-            </h1>
+    <!-- STATISTIK -->
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+
+        <div class="bg-white rounded-3xl shadow-lg p-6">
+
+            <p class="text-slate-500 text-sm">
+                Total Transaksi
+            </p>
+
+            <h2 class="text-4xl font-bold text-slate-800 mt-2">
+                {{ $totalTransaksi }}
+            </h2>
 
         </div>
 
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="bg-white rounded-3xl shadow-lg p-6">
 
-            <p>Tepat Waktu</p>
+            <p class="text-green-600 text-sm">
+                Tepat Waktu
+            </p>
 
-            <h1 class="text-5xl text-blue-600 mt-4">
-                {{ $tepat }}
-            </h1>
+            <h2 class="text-4xl font-bold text-green-600 mt-2">
+                {{ $tepatWaktu }}
+            </h2>
 
         </div>
 
-        <div class="bg-white p-6 rounded-xl shadow">
+        <div class="bg-white rounded-3xl shadow-lg p-6">
 
-            <p>Total Denda</p>
+            <p class="text-red-600 text-sm">
+                Terlambat
+            </p>
 
-            <h1 class="text-5xl text-red-600 mt-4">
+            <h2 class="text-4xl font-bold text-red-600 mt-2">
+                {{ $terlambat }}
+            </h2>
+
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-lg p-6">
+
+            <p class="text-yellow-600 text-sm">
+                Total Denda
+            </p>
+
+            <h2 class="text-3xl font-bold text-yellow-600 mt-2">
                 Rp {{ number_format($totalDenda,0,',','.') }}
-            </h1>
+            </h2>
 
         </div>
 
     </div>
 
     <!-- TABEL -->
-    <div class="bg-white p-6 rounded-xl mt-8 shadow">
 
-        <table class="w-full border-separate border-spacing-y-3">
+    <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
 
-            <thead>
+        <div class="p-6 border-b">
 
-                <tr class="text-left text-gray-500">
+            <h2 class="text-2xl font-bold text-slate-800">
+                Data Riwayat
+            </h2>
 
-                    <th class="px-4 py-3">Anggota</th>
+        </div>
 
-                    <th class="px-4 py-3">Buku</th>
+        <div class="overflow-x-auto">
 
-                    <th class="px-4 py-3">Tgl Pinjam</th>
+            <table class="w-full">
 
-                    <th class="px-4 py-3">Tgl Kembali</th>
+                <thead>
 
-                    <th class="px-4 py-3">Jatuh Tempo</th>
+                    <tr class="bg-slate-50 text-slate-600">
 
-                    <th class="px-4 py-3">Status</th>
+                        <th class="p-5 text-center">
+                            No
+                        </th>
 
-                    <th class="px-4 py-3 text-right">Denda</th>
+                        <th class="p-5 text-left">
+                            Anggota
+                        </th>
 
-                </tr>
+                        <th class="p-5 text-left">
+                            Buku
+                        </th>
 
-            </thead>
+                        <th class="p-5 text-center">
+                            Tanggal Pinjam
+                        </th>
 
-            <tbody>
+                        <th class="p-5 text-center">
+                            Tanggal Kembali
+                        </th>
+
+                        <th class="p-5 text-center">
+                            Status
+                        </th>
+
+                        <th class="p-5 text-center">
+                            Hari Telat
+                        </th>
+
+                        <th class="p-5 text-center">
+                            Denda
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
 
                 @forelse($riwayats as $item)
 
-                <tr class="bg-gray-50">
+                    @php
 
-                    <td class="px-4 py-4">
-                        {{ $item->anggota->nama }}
-                    </td>
+                        $denda =
+                        optional(
+                            $item->dataDenda
+                        )->jumlah_denda ?? 0;
 
-                    <td class="px-4 py-4">
-                        {{ $item->buku->judul }}
-                    </td>
+                        $hariTelat =
+                        optional(
+                            $item->dataDenda
+                        )->hari_terlambat ?? 0;
 
-                    <td class="px-4 py-4">
-                        {{ $item->tanggal_pinjam }}
-                    </td>
+                    @endphp
 
-                    <td class="px-4 py-4">
-                        {{ $item->tanggal_kembali ?? '-' }}
-                    </td>
+                    <tr class="border-t hover:bg-slate-50 transition">
 
-                    <td class="px-4 py-4">
-                        {{ $item->jatuh_tempo }}
-                    </td>
+                        <td class="p-5 text-center">
+                            {{ $loop->iteration }}
+                        </td>
 
-                    <td class="px-4 py-4">
+                        <td class="p-5">
+                            {{ optional($item->anggota)->nama ?? 'Anggota Dihapus' }}
+                        </td>
 
-                        @if($item->status_view == 'Terlambat')
+                        <td class="p-5">
+                            {{ optional($item->buku)->judul ?? 'Buku Dihapus' }}
+                        </td>
 
-                            <span class="bg-red-500 text-white px-3 py-1 rounded-full">
-                                Terlambat
-                            </span>
+                        <td class="p-5 text-center">
+                            {{ $item->tanggal_pinjam }}
+                        </td>
 
-                        @else
+                        <td class="p-5 text-center">
+                            {{ $item->tanggal_kembali ?? '-' }}
+                        </td>
 
-                            <span class="bg-blue-500 text-white px-3 py-1 rounded-full">
-                                Tepat Waktu
-                            </span>
+                        <td class="p-5 text-center">
 
-                        @endif
+                            @if($item->status == 'Dipinjam')
 
-                    </td>
+                                <span class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-medium">
+                                    Belum Dikembalikan
+                                </span>
 
-                    <td class="px-4 py-4 text-right">
+                            @elseif($denda > 0)
 
-                        Rp {{ number_format($item->denda_view,0,',','.') }}
+                                <span class="bg-red-100 text-red-700 px-4 py-2 rounded-full font-medium">
+                                    Terlambat
+                                </span>
 
-                    </td>
+                            @else
 
-                </tr>
+                                <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full font-medium">
+                                    Tepat Waktu
+                                </span>
+
+                            @endif
+
+                        </td>
+
+                        <td class="p-5 text-center">
+
+                            @if($hariTelat > 0)
+
+                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full">
+
+                                    {{ $hariTelat }} Hari
+
+                                </span>
+
+                            @else
+
+                                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+
+                                    0 Hari
+
+                                </span>
+
+                            @endif
+
+                        </td>
+
+                        <td class="p-5 text-center">
+
+                            @if($denda > 0)
+
+                                <span class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full font-semibold">
+
+                                    Rp {{ number_format($denda,0,',','.') }}
+
+                                </span>
+
+                            @else
+
+                                <span class="bg-green-100 text-green-700 px-4 py-2 rounded-full">
+
+                                    Tidak Ada
+
+                                </span>
+
+                            @endif
+
+                        </td>
+
+                    </tr>
 
                 @empty
 
-                <tr>
+                    <tr>
 
-                    <td colspan="7" class="text-center py-10 text-gray-500">
+                        <td
+                            colspan="8"
+                            class="text-center py-10 text-slate-400">
 
-                        Belum ada riwayat transaksi
+                            Belum ada riwayat transaksi
 
-                    </td>
+                        </td>
 
-                </tr>
+                    </tr>
 
                 @endforelse
 
-            </tbody>
+                </tbody>
 
-        </table>
+            </table>
+
+        </div>
 
     </div>
 

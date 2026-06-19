@@ -11,136 +11,100 @@ class PengembalianController extends Controller
 {
     public function index()
     {
-        $pinjams =
-        Peminjaman::with([
-
+        $pinjams = Peminjaman::with([
             'anggota',
-
-            'buku'
-
+            'buku',
+            'dataDenda'
         ])
-        ->where(
-            'status',
-            'Dipinjam'
-        )
+        ->where('status', 'Dipinjam')
         ->get();
 
         return view(
             'pengembalian.index',
-            compact(
-                'pinjams'
-            )
+            compact('pinjams')
         );
     }
 
     public function kembalikan($id)
     {
-        $pinjam =
-        Peminjaman::with(
-            'buku'
-        )->findOrFail(
-            $id
-        );
+        $pinjam = Peminjaman::with('buku')
+            ->findOrFail($id);
 
         $hariTerlambat = 0;
-
         $jumlahDenda = 0;
 
-        // ambil pengaturan
-        $setting =
-        Pengaturan::first();
+        $setting = Pengaturan::first();
 
-        $dendaPerHari =
-        $setting
-            ? $setting->denda_per_hari
+        $dendaPerHari = $setting
+            ? (int) $setting->denda_per_hari
             : 50000;
 
-        // cek terlambat
-        if (
+        $jatuhTempo = Carbon::parse(
+            $pinjam->jatuh_tempo
+        )->startOfDay();
 
-            Carbon::now()
-            ->gt(
-                Carbon::parse(
-                    $pinjam->jatuh_tempo
-                )
-            )
+        $hariIni = Carbon::now()
+            ->startOfDay();
 
-        ) {
+        if ($hariIni->gt($jatuhTempo)) {
 
             $hariTerlambat =
-            (int)
-            Carbon::parse(
-                $pinjam->jatuh_tempo
-            )
-            ->diffInDays(
-                now()
-            );
+                $jatuhTempo->diffInDays(
+                    $hariIni
+                );
 
-            // otomatis ikut pengaturan
             $jumlahDenda =
-            $hariTerlambat
-            *
-            $dendaPerHari;
+                (int) $hariTerlambat *
+                (int) $dendaPerHari;
 
             Denda::updateOrCreate(
 
                 [
-
                     'peminjaman_id' =>
-                    $pinjam->id
-
+                        $pinjam->id
                 ],
 
                 [
-
                     'hari_terlambat' =>
-                    $hariTerlambat,
+                        $hariTerlambat,
 
                     'jumlah_denda' =>
-                    $jumlahDenda,
+                        $jumlahDenda,
 
                     'status' =>
-                    'belum_dibayar',
+                        'belum_dibayar',
 
                     'tanggal_denda' =>
-                    now()
-
+                        now()
                 ]
-
             );
-
         }
 
-        // ubah status
         $pinjam->update([
-
-            'status' =>
-            'Dikembalikan',
-
-            'tanggal_kembali' =>
-            now()
-
+            'status' => 'Dikembalikan',
+            'tanggal_kembali' => now()
         ]);
 
-        // kembalikan stok
-        $pinjam
-            ->buku
-            ->increment(
+        if ($pinjam->buku) {
+
+            $pinjam->buku->increment(
                 'stok'
             );
+        }
 
         return redirect()
-            ->route(
-                'pengembalian.index'
-            )
+            ->route('pengembalian.index')
             ->with(
-
                 'success',
-
                 $jumlahDenda > 0
-                    ? 'Buku dikembalikan • Denda Rp '.number_format($jumlahDenda,0,',','.')
+                    ? 'Buku dikembalikan • Denda Rp ' .
+                        number_format(
+                            $jumlahDenda,
+                            0,
+                            ',',
+                            '.'
+                        )
                     : 'Buku berhasil dikembalikan'
-
             );
     }
 }

@@ -3,68 +3,60 @@
 namespace App\Http\Controllers;
 
 use App\Models\Peminjaman;
+use App\Models\Denda;
 
 class RiwayatController extends Controller
 {
     public function index()
     {
         $riwayats = Peminjaman::with([
-
             'anggota',
-
             'buku',
-
             'dataDenda'
+        ])
+        ->latest()
+        ->get();
 
-        ])->get();
+        $totalTransaksi = $riwayats->count();
 
+        $tepatWaktu = 0;
+        $terlambat = 0;
         $totalDenda = 0;
-
-        $tepat = 0;
 
         foreach ($riwayats as $item) {
 
-            // ambil denda dari tabel dendas
-            $item->denda_view =
-                optional(
-                    $item->dataDenda
-                )->jumlah_denda ?? 0;
+            $denda = optional(
+                $item->dataDenda
+            )->jumlah_denda ?? 0;
 
-            // status keterlambatan
-            if ($item->denda_view > 0) {
+            $item->denda_view = $denda;
 
-                $item->status_view =
-                    'Terlambat';
+            if ($denda > 0) {
+
+                $item->status_view = 'Terlambat';
+
+                $terlambat++;
 
             } else {
 
-                $item->status_view =
-                    'Tepat Waktu';
+                $item->status_view = 'Dikembalikan';
 
-                $tepat++;
+                $tepatWaktu++;
+
             }
 
-            $totalDenda +=
-                $item->denda_view;
+            $totalDenda += $denda;
         }
 
         return view(
             'riwayat.index',
-            [
-
-                'riwayats' =>
-                    $riwayats,
-
-                'total' =>
-                    $riwayats->count(),
-
-                'tepat' =>
-                    $tepat,
-
-                'totalDenda' =>
-                    $totalDenda
-
-            ]
+            compact(
+                'riwayats',
+                'totalTransaksi',
+                'tepatWaktu',
+                'terlambat',
+                'totalDenda'
+            )
         );
     }
 }

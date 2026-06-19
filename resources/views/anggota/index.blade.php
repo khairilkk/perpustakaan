@@ -18,7 +18,7 @@
         </div>
 
         <a href="{{ route('anggota.create') }}"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl">
+           class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl">
             + Tambah Anggota
         </a>
 
@@ -39,10 +39,38 @@
                 Daftar Anggota
             </h2>
 
-            <input
-                type="text"
-                placeholder="Cari anggota..."
-                class="border border-gray-300 rounded-xl px-4 py-2 w-72">
+            <!-- Form Pencarian -->
+            <form
+                action="{{ route('anggota.index') }}"
+                method="GET"
+                class="flex gap-3">
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ request('search') }}"
+                    placeholder="Cari anggota..."
+                    class="border border-gray-300 rounded-xl px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+                <button
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl">
+
+                    Cari
+
+                </button>
+
+                @if(request('search'))
+                    <a
+                        href="{{ route('anggota.index') }}"
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-xl">
+
+                        Reset
+
+                    </a>
+                @endif
+
+            </form>
 
         </div>
 
@@ -54,7 +82,7 @@
 
                     <tr class="border-b text-left text-gray-600">
 
-                        <th class="py-4">ID</th>
+                        <th class="py-4">No</th>
                         <th>Nama</th>
                         <th>Alamat</th>
                         <th>Telepon</th>
@@ -66,15 +94,15 @@
 
                 <tbody>
 
-                    @forelse($anggotas as $anggota)
+                    @forelse($anggotas as $index => $anggota)
 
                     <tr class="border-b hover:bg-gray-50">
 
                         <td class="py-4">
-                            {{ $anggota->id }}
+                            {{ $index + 1 }}
                         </td>
 
-                        <td>
+                        <td class="font-medium">
                             {{ $anggota->nama }}
                         </td>
 
@@ -89,11 +117,14 @@
                         <td class="text-center">
 
                             <a href="{{ route('anggota.edit', $anggota->id) }}"
-                                class="bg-yellow-400 hover:bg-yellow-500 text-white px-3 py-2 rounded-lg mr-2 inline-block">
+                               class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-lg mr-2 inline-block">
+
                                 Edit
+
                             </a>
 
-                            <form action="{{ route('anggota.destroy', $anggota->id) }}"
+                            <form
+                                action="{{ route('anggota.destroy', $anggota->id) }}"
                                 method="POST"
                                 class="inline">
 
@@ -119,10 +150,11 @@
 
                     <tr>
 
-                        <td colspan="5"
+                        <td
+                            colspan="5"
                             class="text-center py-10 text-gray-500">
 
-                            Belum ada data anggota
+                            Data anggota tidak ditemukan
 
                         </td>
 

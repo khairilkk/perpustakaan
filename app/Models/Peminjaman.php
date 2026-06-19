@@ -41,9 +41,8 @@ class Peminjaman extends Model
     public function dataDenda()
     {
         return $this->hasOne(
-            Denda::class,
-            'peminjaman_id',
-            'id'
+            \App\Models\Denda::class,
+            'peminjaman_id'
         );
     }
 }

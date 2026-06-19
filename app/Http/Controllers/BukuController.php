@@ -17,7 +17,7 @@ class BukuController extends Controller
             $query->where(
                 'judul',
                 'like',
-                '%'.$request->search.'%'
+                '%' . $request->search . '%'
             );
 
         }
@@ -37,10 +37,10 @@ class BukuController extends Controller
         ->latest()
         ->get();
 
-        // Ambil semua kategori unik
+        // Ambil kategori unik
         $kategori =
         Buku::whereNotNull('kategori')
-            ->where('kategori','!=','')
+            ->where('kategori', '!=', '')
             ->distinct()
             ->pluck('kategori');
 
@@ -66,46 +66,46 @@ class BukuController extends Controller
     {
         $request->validate([
 
-            'kode_buku'=>'required',
+            'kode_buku' => 'required',
 
-            'judul'=>'required',
+            'judul' => 'required',
 
-            'kategori'=>'required',
+            'kategori' => 'required',
 
-            'penulis'=>'required',
+            'penulis' => 'required',
 
-            'stok'=>'required|numeric'
+            'stok' => 'required|numeric'
 
         ]);
 
 
         Buku::create([
 
-            'kode_buku'=>
+            'kode_buku' =>
             $request->kode_buku,
 
-            'judul'=>
+            'judul' =>
             $request->judul,
 
-            'kategori'=>
+            'kategori' =>
             $request->kategori,
 
-            'penulis'=>
+            'penulis' =>
             $request->penulis,
 
-            'stok'=>
+            'stok' =>
             $request->stok
 
         ]);
 
-        return redirect()
-        ->route('buku.index')
-        ->with(
-            'success',
-            'Buku berhasil ditambah'
-        );
-    }
 
+        return redirect()
+            ->route('buku.index')
+            ->with(
+                'success',
+                'Buku berhasil ditambahkan'
+            );
+    }
 
 
     public function edit(Buku $buku)
@@ -119,7 +119,6 @@ class BukuController extends Controller
     }
 
 
-
     public function update(
         Request $request,
         Buku $buku
@@ -127,51 +126,54 @@ class BukuController extends Controller
     {
         $request->validate([
 
-            'judul'=>'required',
+            'judul' => 'required',
 
-            'kategori'=>'required',
+            'kategori' => 'required',
 
-            'penulis'=>'required',
+            'penulis' => 'required',
 
-            'stok'=>'required'
+            'stok' => 'required|numeric'
 
         ]);
 
 
         $buku->update([
 
-            'judul'=>
+            'judul' =>
             $request->judul,
 
-            'kategori'=>
+            'kategori' =>
             $request->kategori,
 
-            'penulis'=>
+            'penulis' =>
             $request->penulis,
 
-            'stok'=>
+            'stok' =>
             $request->stok
 
         ]);
 
+
         return redirect()
-        ->route('buku.index')
-        ->with(
-            'success',
-            'Buku berhasil diupdate'
-        );
+            ->route('buku.index')
+            ->with(
+                'success',
+                'Buku berhasil diupdate'
+            );
     }
 
 
-
-    public function destroy(Buku $buku)
+    public function destroy(
+        Buku $buku
+    )
     {
         $buku->delete();
 
-        return back()
-        ->with(
-            'success',
-            'Buku dihapus'
-        );
+        return redirect()
+            ->route('buku.index')
+            ->with(
+                'success',
+                'Buku berhasil dihapus'
+            );
     }
 }

@@ -160,6 +160,22 @@
 
             </div>
 
+            <div class="mb-4">
+
+            <label class="block mb-2 font-semibold">
+
+            Kategori
+
+            </label>
+
+            <input
+            type="text"
+            name="kategori"
+            placeholder="Contoh: Sains"
+            class="w-full border rounded-xl px-4 py-3">
+
+            </div>
+
             <!-- Stok -->
             <div class="mb-6">
 
