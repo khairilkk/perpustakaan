@@ -105,64 +105,7 @@
 
             <label class="font-semibold">
 
-            Kategori
-
-            </label>
-
-            <select
-            name="kategori"
-            required
-            class="w-full border rounded-xl p-3 mt-2">
-
-            <option value="">
-
-            Pilih Kategori
-
-            </option>
-
-            <option value="Sains">
-
-            Sains
-
-            </option>
-
-            <option value="Novel">
-
-            Novel
-
-            </option>
-
-            <option value="Komik">
-
-            Komik
-
-            </option>
-
-            <option value="Teknologi">
-
-            Teknologi
-
-            </option>
-
-            <option value="Sejarah">
-
-            Sejarah
-
-            </option>
-
-            <option value="Pendidikan">
-
-            Pendidikan
-
-            </option>
-
-            </select>
-
-            </div>
-
-            <div class="mb-4">
-
-            <label class="block mb-2 font-semibold">
+            
 
             Kategori
 
